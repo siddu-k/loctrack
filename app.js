@@ -112,12 +112,30 @@ function showLogs(linkId, li) {
         return;
       }
 
-      let logsText = "";
+      logsDiv.innerHTML = ""; // Clear previous content
+
       snapshot.forEach(doc => {
         const data = doc.data();
-        logsText += `Time: ${new Date(data.timestamp).toLocaleString()}\nLat: ${data.latitude}\nLng: ${data.longitude}\n\n`;
+
+        // Create container for each log entry
+        const entry = document.createElement("div");
+        entry.style.marginBottom = "1em";
+
+        // Format time
+        const time = new Date(data.timestamp).toLocaleString();
+
+        // Google Maps link for coordinates
+        const mapsLink = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
+
+        entry.innerHTML = `
+          <strong>Time:</strong> ${time} <br>
+          <strong>Lat:</strong> ${data.latitude} <br>
+          <strong>Lng:</strong> ${data.longitude} <br>
+          <a href="${mapsLink}" target="_blank" rel="noopener noreferrer">View on Google Maps</a>
+        `;
+
+        logsDiv.appendChild(entry);
       });
-      logsDiv.textContent = logsText.trim();
     })
     .catch(err => {
       logsDiv.textContent = "Error loading logs: " + err.message;
