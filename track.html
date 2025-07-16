@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tracking...</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBuP5HZ72obwWBXxubIygcMykbc1OtHnX0",
+      authDomain: "location-track-eef6b.firebaseapp.com",
+      projectId: "location-track-eef6b",
+      storageBucket: "location-track-eef6b.firebasestorage.app",
+      messagingSenderId: "473306500870",
+      appId: "1:473306500870:web:5ec2fc77c35f31adc5d887",
+      measurementId: "G-45TGXDF75D"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    window.onload = () => {
+      const linkId = getQueryParam("id");
+      if (!linkId) return;
+
+      navigator.geolocation.getCurrentPosition((position) => {
+        db.collection("tracks").doc(linkId).collection("logs").add({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date().toISOString()
+        }).then(() => {
+          document.body.innerHTML = "<h2>Location captured successfully!</h2>";
+        });
+      }, () => {
+        document.body.innerHTML = "<h2>Location access denied.</h2>";
+      });
+    };
+  </script>
+</head>
+<body>
+  <h1>Tracking your location...</h1>
+</body>
+</html>
