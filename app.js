@@ -12,6 +12,8 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+const baseUrl = "https://siddu-k.github.io/loctrack/";
+
 function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -34,11 +36,11 @@ function logout() {
 
 function createTrackLink() {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) return alert("Not logged in");
 
   const linkRef = db.collection("users").doc(user.uid).collection("links").doc();
   linkRef.set({ createdAt: new Date().toISOString() }).then(() => {
-    const fullLink = `${window.location.origin}/track.html?id=${linkRef.id}`;
+    const fullLink = `${baseUrl}track.html?id=${linkRef.id}`;
     const li = document.createElement("li");
     li.innerHTML = `<a href="${fullLink}" target="_blank">${fullLink}</a>`;
     document.getElementById("linkList").appendChild(li);
@@ -54,7 +56,7 @@ function loadDashboard() {
     const list = document.getElementById("linkList");
     list.innerHTML = "";
     snapshot.forEach(doc => {
-      const link = `${window.location.origin}/track.html?id=${doc.id}`;
+      const link = `${baseUrl}track.html?id=${doc.id}`;
       const li = document.createElement("li");
       li.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
       list.appendChild(li);
