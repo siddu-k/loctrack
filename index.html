@@ -1,25 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LocTrack - Dashboard</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="app.js" defer></script>
+  <style>
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0d0d0d;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      margin-bottom: 20px;
+      color: #00ffff;
+    }
+
+    #auth, #dashboard {
+      width: 100%;
+      max-width: 400px;
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+    }
+
+    input {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #333;
+      color: #fff;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      background: #00ffff;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #00cccc;
+    }
+
+    #linkList {
+      list-style: none;
+      margin-top: 20px;
+    }
+
+    #linkList li {
+      margin-bottom: 15px;
+      background-color: #222;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    a {
+      color: #00ffff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .log-entry {
+      font-size: 0.9em;
+      background: #111;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      overflow-x: auto;
+    }
+
+    @media screen and (max-width: 480px) {
+      #auth, #dashboard {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to LocTrack</h1>
+  <h1>🔍 LocTrack</h1>
 
   <div id="auth">
-    <input type="email" id="email" placeholder="Email"><br>
-    <input type="password" id="password" placeholder="Password"><br>
+    <h2>Login / Sign Up</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
     <button onclick="login()">Login</button>
     <button onclick="signup()">Sign Up</button>
   </div>
 
   <div id="dashboard" style="display:none;">
     <h2>Dashboard</h2>
-    <button onclick="createTrackLink()">Create Track Link</button>
+    <button onclick="createTrackLink()">+ Create New Track Link</button>
     <ul id="linkList"></ul>
     <button onclick="logout()">Logout</button>
   </div>
