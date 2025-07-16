@@ -40,10 +40,7 @@ function createTrackLink() {
 
   const linkRef = db.collection("users").doc(user.uid).collection("links").doc();
   linkRef.set({ createdAt: new Date().toISOString() }).then(() => {
-    const fullLink = `${baseUrl}track.html?id=${linkRef.id}`;
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="${fullLink}" target="_blank">${fullLink}</a>`;
-    document.getElementById("linkList").appendChild(li);
+    loadDashboard(); // reload dashboard after creating link
   });
 }
 
@@ -55,13 +52,76 @@ function loadDashboard() {
   db.collection("users").doc(user.uid).collection("links").get().then(snapshot => {
     const list = document.getElementById("linkList");
     list.innerHTML = "";
+
     snapshot.forEach(doc => {
-      const link = `${baseUrl}track.html?id=${doc.id}`;
+      const linkId = doc.id;
+      const link = `${baseUrl}track.html?id=${linkId}`;
+
+      // Create list item container
       const li = document.createElement("li");
-      li.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+      li.style.marginBottom = "1.5em";
+
+      // Link anchor
+      const anchor = document.createElement("a");
+      anchor.href = link;
+      anchor.target = "_blank";
+      anchor.textContent = link;
+
+      // Show Logs button
+      const btn = document.createElement("button");
+      btn.textContent = "Show Logs";
+      btn.style.marginLeft = "1em";
+      btn.onclick = () => showLogs(linkId, li);
+
+      // Container for logs output
+      const logsDiv = document.createElement("div");
+      logsDiv.style.marginTop = "0.5em";
+      logsDiv.style.fontSize = "0.9em";
+      logsDiv.style.whiteSpace = "pre-wrap";
+      logsDiv.style.maxHeight = "200px";
+      logsDiv.style.overflowY = "auto";
+      logsDiv.style.border = "1px solid #ccc";
+      logsDiv.style.padding = "0.5em";
+      logsDiv.style.display = "none"; // hidden initially
+
+      li.appendChild(anchor);
+      li.appendChild(btn);
+      li.appendChild(logsDiv);
       list.appendChild(li);
     });
   });
+}
+
+function showLogs(linkId, li) {
+  const logsDiv = li.querySelector("div");
+  if (logsDiv.style.display === "block") {
+    // Hide logs if already visible
+    logsDiv.style.display = "none";
+    return;
+  }
+
+  logsDiv.textContent = "Loading logs...";
+  logsDiv.style.display = "block";
+
+  db.collection("tracks").doc(linkId).collection("logs")
+    .orderBy("timestamp", "desc")
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        logsDiv.textContent = "No logs found.";
+        return;
+      }
+
+      let logsText = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        logsText += `Time: ${new Date(data.timestamp).toLocaleString()}\nLat: ${data.latitude}\nLng: ${data.longitude}\n\n`;
+      });
+      logsDiv.textContent = logsText.trim();
+    })
+    .catch(err => {
+      logsDiv.textContent = "Error loading logs: " + err.message;
+    });
 }
 
 auth.onAuthStateChanged(user => {
